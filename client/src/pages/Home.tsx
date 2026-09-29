@@ -1,62 +1,38 @@
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
+import Hero from "@/components/Hero";
 import About from "@/components/About";
-import Services from "@/components/Services";
-import CtaBanner from "@/components/CtaBanner";
-import Treatments from "@/components/Treatments";
+import Team from "@/components/Team";
+import Media from "@/components/Media";
+import Areas from "@/components/Areas";
 import Differentials from "@/components/Differentials";
+import CtaBanner from "@/components/CtaBanner";
 import Locations from "@/components/Locations";
 import Testimonials from "@/components/Testimonials";
 import FAQ from "@/components/FAQ";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
-
-const menuItems = [
-  { id: "about", label: "Sobre" },
-  { id: "services", label: "Atuação" },
-  { id: "benefits", label: "Benefícios" },
-  { id: "differentials", label: "Diferenciais" },
-  { id: "clinic", label: "Clínica" },
-  { id: "faq", label: "FAQ" },
-  { id: "contact", label: "Contato" },
-];
+import { NAV_ITEMS, scrollToId } from "@/lib/site";
 
 export default function Home() {
-  const [activeSection, setActiveSection] = useState("about");
+  const [activeSection, setActiveSection] = useState("inicio");
 
   const scrollToSection = (sectionId: string) => {
     setActiveSection(sectionId);
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    scrollToId(sectionId);
   };
 
   useEffect(() => {
-    const sections = [
-      "about",
-      "services",
-      "cta-banner",
-      "benefits",
-      "differentials",
-      "clinic",
-      "testimonials",
-      "faq",
-      "contact",
-    ];
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
+          if (entry.isIntersecting) setActiveSection(entry.target.id);
         });
       },
-      { threshold: 0.25 }
+      { rootMargin: "-40% 0px -55% 0px" },
     );
 
-    sections.forEach((id) => {
+    ["inicio", ...NAV_ITEMS.map((i) => i.id)].forEach((id) => {
       const el = document.getElementById(id);
       if (el) observer.observe(el);
     });
@@ -66,18 +42,27 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar
-        activeSection={activeSection}
-        scrollToSection={scrollToSection}
-      />
+      <Navbar activeSection={activeSection} scrollToSection={scrollToSection} />
       <main>
-        <About scrollToSection={scrollToSection} />
-        <Services />
-        <CtaBanner />
-        <Treatments />
+        <Hero scrollToSection={scrollToSection} />
+        <About />
+        <Team />
+        <Media />
+        <Areas />
         <Differentials />
+        <CtaBanner
+          title="Uma avaliação para entender seu caso com calma."
+          text="A avaliação inicial dura 1h30, é o primeiro passo para criar um plano de tratamento individual, com previsão clara de alta."
+          buttonLabel="Agendar minha avaliação"
+        />
         <Locations />
         <Testimonials />
+        <CtaBanner
+          title="Ressignifique a relação com o seu corpo."
+          text="Agende sua avaliação inicial na JS Fisioterapia Pélvica e Bem-Estar e comece um tratamento individual, com ciência, acolhimento e previsão clara de alta."
+          buttonLabel="Agendar pelo WhatsApp"
+          microtext="Atendimento particular. Avaliação inicial de 1h30."
+        />
         <FAQ />
         <Contact />
       </main>

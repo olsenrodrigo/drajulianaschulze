@@ -1,176 +1,57 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { motion } from "framer-motion";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import SectionHeader from "./SectionHeader";
+import { PRIMARY } from "@/lib/site";
 
-const ACCENT = "#C91D6E";
-const PRIMARY = "#1C1C1C";
-
-const faqItems = [
+export const faqs = [
+  { q: "Quanto custa a avaliação inicial?", a: "R$ 450, com duração de 1h30." },
+  { q: "Quanto custa cada sessão?", a: "R$ 300 por sessão de 1 hora." },
   {
-    question: "O que é fisioterapia pélvica?",
-    answer:
-      "É uma especialidade que avalia e trata alterações relacionadas ao assoalho pélvico, promovendo saúde, prevenção e qualidade de vida.",
+    q: "Quantas sessões eu vou precisar?",
+    a: "Varia de pessoa para pessoa. A previsão de alta é definida já na avaliação inicial.",
+  },
+  { q: "Atendem homens?", a: "Sim, principalmente para reabilitação após prostatectomia e disfunções urinárias." },
+  { q: "Atendem convênio?", a: "O atendimento é particular." },
+  {
+    q: "O que é a ginástica pélvica?",
+    a: "É um método próprio criado por Juliana, com encontros em grupo às sextas-feiras.",
   },
   {
-    question: "Quem pode fazer fisioterapia pélvica?",
-    answer:
-      "Mulheres, homens, gestantes, puérperas e pessoas com diferentes disfunções pélvicas.",
+    q: "A fisioterapia pélvica ajuda na vida sexual?",
+    a: "Sim. Além de dor na relação e vaginismo, a fisioterapia pélvica também atua em alterações de libido e na dificuldade para chegar ao orgasmo, com escuta, privacidade e sem julgamento.",
   },
   {
-    question: "A avaliação dói?",
-    answer:
-      "Não. A avaliação é realizada de forma individualizada, respeitando o conforto e os limites de cada paciente.",
-  },
-  {
-    question: "Quantas sessões são necessárias?",
-    answer:
-      "Cada tratamento é personalizado. Após a avaliação é possível estimar o número de sessões de acordo com cada caso.",
-  },
-  {
-    question: "Gestantes podem fazer fisioterapia pélvica?",
-    answer:
-      "Sim. O acompanhamento durante a gestação ajuda na preparação para o parto e na prevenção de diversas disfunções.",
-  },
-  {
-    question: "A fisioterapia pélvica trata perda urinária?",
-    answer:
-      "Sim. A perda urinária é uma das principais indicações da fisioterapia pélvica e possui excelentes resultados quando tratada adequadamente.",
+    q: "Vocês tratam problemas intestinais?",
+    a: "Sim. Constipação, dificuldade para evacuar e perda involuntária de gases ou fezes estão entre os casos que mais atendemos, com avaliação individual e exercícios específicos para o assoalho pélvico.",
   },
 ];
 
-function FaqItem({ item, index }: { item: typeof faqItems[0]; index: number }) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.07 }}
-      className="border-b last:border-b-0"
-      style={{ borderColor: "rgba(28,28,28,0.09)" }}
-    >
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full py-5 text-left cursor-pointer group"
-        aria-expanded={isOpen}
-      >
-        <span
-          className="text-base font-semibold pr-4 leading-snug group-hover:text-[#C91D6E] transition-colors"
-          style={{
-            color: isOpen ? ACCENT : PRIMARY,
-            fontFamily: "Lora, Georgia, serif",
-          }}
-        >
-          {item.question}
-        </span>
-        <span
-          className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200"
-          style={{
-            backgroundColor: isOpen ? "rgba(201,29,110,0.10)" : "rgba(28,28,28,0.05)",
-          }}
-        >
-          <ChevronDown
-            size={16}
-            style={{
-              color: isOpen ? ACCENT : PRIMARY,
-              transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-              transition: "transform 0.25s ease",
-            }}
-          />
-        </span>
-      </button>
-
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            key="content"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="overflow-hidden"
-          >
-            <p
-              className="text-sm leading-relaxed pb-5"
-              style={{ color: "#5A5A5A", fontFamily: "Montserrat, sans-serif" }}
-            >
-              {item.answer}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-}
-
 export default function FAQ() {
   return (
-    <section id="faq" className="py-16 md:py-24" style={{ backgroundColor: "#F5F3F3" }}>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-
-        {/* Header */}
+    <section id="faq" className="py-16 md:py-24" style={{ backgroundColor: "#FFFFFF" }}>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
+        <SectionHeader eyebrow="Perguntas frequentes" title="Tire suas dúvidas." />
         <motion.div
-          initial={{ opacity: 0, y: 15 }}
+          initial={{ opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          transition={{ duration: 0.5 }}
         >
-          <div className="flex items-center justify-center gap-4 mb-5">
-            <div style={{ height: "1px", width: "2.5rem", backgroundColor: ACCENT, opacity: 0.6 }} />
-            <span
-              className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: ACCENT, fontFamily: "Montserrat, sans-serif" }}
-            >
-              FAQ
-            </span>
-            <div style={{ height: "1px", width: "2.5rem", backgroundColor: ACCENT, opacity: 0.6 }} />
-          </div>
-
-          <h2
-            className="mb-3 leading-tight"
-            style={{
-              fontSize: "clamp(1.8rem, 3vw, 2.6rem)",
-              fontFamily: "Lora, Georgia, serif",
-              color: PRIMARY,
-            }}
-          >
-            Perguntas Frequentes
-          </h2>
-        </motion.div>
-
-        {/* Accordion */}
-        <div
-          className="max-w-2xl mx-auto bg-white rounded-2xl px-6 md:px-10 border"
-          style={{ borderColor: "rgba(28,28,28,0.08)", boxShadow: "0 4px 20px rgba(28,28,28,0.06)" }}
-        >
-          {faqItems.map((item, index) => (
-            <FaqItem key={index} item={item} index={index} />
-          ))}
-        </div>
-
-        {/* Bottom CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mt-10"
-        >
-          <p
-            className="text-sm mb-4"
-            style={{ color: "#5A5A5A", fontFamily: "Montserrat, sans-serif" }}
-          >
-            Ainda tem dúvidas?
-          </p>
-          <motion.button
-            whileHover={{ scale: 1.025 }}
-            whileTap={{ scale: 0.975 }}
-            onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
-            className="px-7 py-3 text-white rounded-md font-medium text-sm cursor-pointer transition-all hover:shadow-md"
-            style={{ backgroundColor: ACCENT, fontFamily: "Montserrat, sans-serif" }}
-          >
-            Entre em Contato
-          </motion.button>
+          <Accordion type="single" collapsible className="border-t" style={{ borderColor: "rgba(28,28,28,0.1)" }}>
+            {faqs.map((f, i) => (
+              <AccordionItem key={f.q} value={`item-${i}`} style={{ borderColor: "rgba(28,28,28,0.1)" }}>
+                <AccordionTrigger
+                  className="py-5 text-[0.95rem] md:text-base font-bold hover:no-underline cursor-pointer"
+                  style={{ color: PRIMARY }}
+                >
+                  {f.q}
+                </AccordionTrigger>
+                <AccordionContent className="pl-4 pr-6 text-[0.9rem] md:text-[0.95rem] leading-relaxed text-[#5A5A5A]">
+                  {f.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </motion.div>
       </div>
     </section>

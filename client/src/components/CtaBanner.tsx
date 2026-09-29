@@ -1,74 +1,59 @@
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { MessageCircle } from "lucide-react";
+import { ACCENT, whatsappLink } from "@/lib/site";
 
-const ACCENT = "#C91D6E";
+interface CtaBannerProps {
+  id?: string;
+  title: string;
+  text: string;
+  buttonLabel: string;
+  microtext?: string;
+}
 
-export default function CtaBanner() {
-  const goToContact = () => {
-    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-  };
-
+export default function CtaBanner({ id, title, text, buttonLabel, microtext }: CtaBannerProps) {
   return (
-    <section id="cta-banner" style={{ backgroundColor: "#1C1C1C" }}>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-24">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.65 }}
-          className="max-w-3xl mx-auto text-center"
+    <section id={id} className="py-16 md:py-20 relative overflow-hidden" style={{ backgroundColor: ACCENT }}>
+      <div
+        className="absolute -right-24 -top-24 w-72 h-72 rounded-full"
+        style={{ border: "1px solid rgba(255,255,255,0.15)" }}
+        aria-hidden
+      />
+      <div
+        className="absolute -left-16 -bottom-28 w-64 h-64 rounded-full"
+        style={{ border: "1px solid rgba(255,255,255,0.12)" }}
+        aria-hidden
+      />
+      <motion.div
+        initial={{ opacity: 0, y: 14 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-3xl"
+      >
+        <h2 className="text-balance leading-tight" style={{ fontSize: "clamp(1.7rem, 3vw, 2.5rem)", color: "#FFFFFF" }}>
+          {title}
+        </h2>
+        <p className="mt-5 text-base md:text-lg" style={{ color: "rgba(255,255,255,0.88)" }}>
+          {text}
+        </p>
+        <motion.a
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          href={whatsappLink()}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-8 w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-9 py-4 rounded-md font-semibold text-[0.95rem] bg-white"
+          style={{ color: ACCENT, boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}
         >
-          {/* Decorative accent line */}
-          <div
-            className="mx-auto mb-7"
-            style={{
-              width: "2.5rem",
-              height: "2px",
-              backgroundColor: ACCENT,
-            }}
-          />
-
-          <h2
-            className="mb-5 leading-tight"
-            style={{
-              fontSize: "clamp(1.75rem, 3vw, 2.5rem)",
-              fontFamily: "Lora, Georgia, serif",
-              fontWeight: 700,
-              color: "#FFFFFF",
-            }}
-          >
-            Seu corpo está dando sinais?
-          </h2>
-
-          <p
-            className="text-base leading-relaxed mb-9 max-w-2xl mx-auto"
-            style={{
-              color: "rgba(255,255,255,0.65)",
-              fontFamily: "Montserrat, sans-serif",
-            }}
-          >
-            Não espere que pequenos desconfortos se transformem em grandes limitações.
-            Uma avaliação especializada pode identificar a causa dos seus sintomas e indicar
-            o tratamento mais adequado para você.
+          <MessageCircle size={18} />
+          {buttonLabel}
+        </motion.a>
+        {microtext && (
+          <p className="mt-4 text-xs tracking-wide" style={{ color: "rgba(255,255,255,0.75)" }}>
+            {microtext}
           </p>
-
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={goToContact}
-            className="group inline-flex items-center gap-2 px-8 py-4 text-white font-semibold rounded-md cursor-pointer transition-all"
-            style={{
-              backgroundColor: ACCENT,
-              fontFamily: "Montserrat, sans-serif",
-              fontSize: "0.9rem",
-              boxShadow: "0 4px 20px rgba(201,29,110,0.35)",
-            }}
-          >
-            Agende sua Avaliação
-            <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
-          </motion.button>
-        </motion.div>
-      </div>
+        )}
+      </motion.div>
     </section>
   );
 }

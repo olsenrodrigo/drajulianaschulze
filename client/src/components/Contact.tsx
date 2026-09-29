@@ -1,314 +1,143 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Send, CheckCircle2, Loader2, MessageCircle } from "lucide-react";
+import { Loader2, MessageCircle, Lock } from "lucide-react";
+import SectionHeader from "./SectionHeader";
+import { ACCENT, PRIMARY, whatsappLink } from "@/lib/site";
 
-const ACCENT = "#C91D6E";
-const PRIMARY = "#1C1C1C";
+const reasons = [
+  "Gestação / pós-parto",
+  "Menopausa",
+  "Disfunção sexual / vaginismo",
+  "Pós-prostatectomia",
+  "Constipação",
+  "Ginástica pélvica",
+  "Outro motivo",
+];
+
+const emptyForm = { name: "", whatsapp: "", email: "", reason: "", message: "" };
+
+function formatPhone(value: string) {
+  const d = value.replace(/\D/g, "").slice(0, 11);
+  if (d.length <= 2) return d ? `(${d}` : "";
+  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+}
 
 export default function Contact() {
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    whatsapp: "",
-    email: "",
-    message: "",
-  });
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [form, setForm] = useState(emptyForm);
+  const [sending, setSending] = useState(false);
+
+  const set = (field: keyof typeof emptyForm) => (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+  ) => setForm({ ...form, [field]: field === "whatsapp" ? formatPhone(e.target.value) : e.target.value });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.phone || !formData.email || !formData.message) return;
+    setSending(true);
 
-    setStatus("loading");
+    const message = `Motivo: ${form.reason}${form.message ? `\n\n${form.message}` : ""}`;
+
+    // Registra o lead (e-mail + banco) sem bloquear o redirecionamento para o WhatsApp.
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (!res.ok) throw new Error("Erro ao enviar");
-      setStatus("success");
-      setFormData({ name: "", phone: "", whatsapp: "", email: "", message: "" });
+      await Promise.race([
+        fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: form.name, phone: form.whatsapp, email: form.email, message }),
+          keepalive: true,
+        }),
+        new Promise((resolve) => setTimeout(resolve, 2500)),
+      ]);
     } catch {
-      setStatus("error");
+      // O atendimento segue pelo WhatsApp mesmo se o registro falhar.
     }
+
+    const text =
+      `Olá! Meu nome é ${form.name} e vim pelo site da JS Fisioterapia Pélvica e Bem-Estar. ` +
+      `Gostaria de agendar uma avaliação.\n\nO que me trouxe até aqui: ${form.reason}` +
+      (form.message ? `\n\n${form.message}` : "");
+
+    window.location.href = whatsappLink(text);
+    setSending(false);
+    setForm(emptyForm);
   };
 
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "0.75rem 1rem",
-    border: "1px solid rgba(28,28,28,0.12)",
-    borderRadius: "0.5rem",
-    fontSize: "0.875rem",
-    fontFamily: "Montserrat, sans-serif",
-    color: PRIMARY,
-    backgroundColor: "#FAFAFA",
-    outline: "none",
-    transition: "border-color 0.2s",
-  };
+  const fieldClass =
+    "w-full px-4 py-3.5 rounded-lg text-[0.95rem] bg-[#FAFAFA] border border-[rgba(28,28,28,0.14)] outline-none transition-colors focus:border-[#C91D6E] focus:bg-white";
+  const labelClass = "block text-xs font-semibold mb-1.5 uppercase tracking-wide";
 
   return (
-    <section id="contact" className="py-16 md:py-24" style={{ backgroundColor: "#FFFFFF" }}>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="agendar" className="py-16 md:py-24" style={{ backgroundColor: "#F9F7F7" }}>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-2xl">
+        <SectionHeader
+          eyebrow="Formulário"
+          title="Agende sua avaliação"
+          subtitle="Preencha os campos abaixo. Ao enviar, o atendimento continua no nosso WhatsApp, já sabendo o motivo da sua busca."
+        />
 
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
+        <motion.form
+          initial={{ opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-12"
+          transition={{ duration: 0.5 }}
+          onSubmit={handleSubmit}
+          className="bg-white rounded-2xl p-6 md:p-10 space-y-5"
+          style={{ border: "1px solid rgba(28,28,28,0.08)", boxShadow: "0 4px 24px rgba(28,28,28,0.06)" }}
         >
-          <div className="flex items-center gap-3 mb-5">
-            <div style={{ width: "2rem", height: "1px", backgroundColor: ACCENT, flexShrink: 0 }} />
-            <span
-              className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: ACCENT, fontFamily: "Montserrat, sans-serif" }}
-            >
-              Agende sua Avaliação
-            </span>
+          <div>
+            <label htmlFor="f-name" className={labelClass} style={{ color: PRIMARY }}>Nome *</label>
+            <input id="f-name" type="text" required autoComplete="name" value={form.name} onChange={set("name")}
+              className={fieldClass} placeholder="Seu nome" />
           </div>
-          <h2
-            className="mb-3 leading-tight"
-            style={{
-              fontSize: "clamp(1.8rem, 3vw, 2.6rem)",
-              fontFamily: "Lora, Georgia, serif",
-              color: PRIMARY,
-            }}
+
+          <div className="grid sm:grid-cols-2 gap-5">
+            <div>
+              <label htmlFor="f-whatsapp" className={labelClass} style={{ color: PRIMARY }}>WhatsApp *</label>
+              <input id="f-whatsapp" type="tel" inputMode="tel" required autoComplete="tel" minLength={14}
+                value={form.whatsapp} onChange={set("whatsapp")} className={fieldClass} placeholder="(11) 99999-9999" />
+            </div>
+            <div>
+              <label htmlFor="f-email" className={labelClass} style={{ color: PRIMARY }}>E-mail *</label>
+              <input id="f-email" type="email" required autoComplete="email" value={form.email} onChange={set("email")}
+                className={fieldClass} placeholder="seu@email.com" />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="f-reason" className={labelClass} style={{ color: PRIMARY }}>O que te trouxe até aqui *</label>
+            <select id="f-reason" required value={form.reason} onChange={set("reason")}
+              className={`${fieldClass} cursor-pointer ${form.reason ? "" : "text-[#8A8A8A]"}`}>
+              <option value="" disabled>Selecione uma opção</option>
+              {reasons.map((r) => <option key={r} value={r} className="text-[#1C1C1C]">{r}</option>)}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="f-message" className={labelClass} style={{ color: PRIMARY }}>Mensagem</label>
+            <textarea id="f-message" rows={4} value={form.message} onChange={set("message")}
+              className={`${fieldClass} resize-none`} placeholder="Conte um pouco sobre o que você está sentindo (opcional)" />
+          </div>
+
+          <motion.button
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+            type="submit"
+            disabled={sending}
+            className="w-full px-8 py-4 text-white rounded-lg font-semibold flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-70 text-[0.95rem]"
+            style={{ backgroundColor: ACCENT }}
           >
-            Dê o primeiro passo para cuidar da sua saúde pélvica.
-          </h2>
-          <p
-            className="text-base max-w-xl"
-            style={{ color: "#5A5A5A", fontFamily: "Montserrat, sans-serif" }}
-          >
-            Preencha seus dados e nossa equipe entrará em contato para agendar seu atendimento.
+            {sending ? (
+              <><Loader2 className="w-4 h-4 animate-spin" /> Abrindo o WhatsApp...</>
+            ) : (
+              <><MessageCircle size={18} /> Continuar no WhatsApp</>
+            )}
+          </motion.button>
+
+          <p className="flex items-center justify-center gap-1.5 text-xs text-center" style={{ color: "#8A8A8A" }}>
+            <Lock size={12} /> Seus dados são tratados com sigilo e usados apenas para o seu atendimento.
           </p>
-        </motion.div>
-
-        <div className="grid lg:grid-cols-5 gap-10 max-w-5xl">
-
-          {/* Left: CTA text + WhatsApp */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="lg:col-span-2 space-y-6"
-          >
-            <div
-              className="rounded-2xl p-7 border"
-              style={{
-                backgroundColor: "#F9F7F7",
-                borderColor: "rgba(28,28,28,0.08)",
-              }}
-            >
-              <h3
-                className="text-lg font-bold mb-3"
-                style={{ color: PRIMARY, fontFamily: "Lora, Georgia, serif" }}
-              >
-                Prefere o WhatsApp?
-              </h3>
-              <p
-                className="text-sm leading-relaxed mb-5"
-                style={{ color: "#5A5A5A", fontFamily: "Montserrat, sans-serif" }}
-              >
-                Fale diretamente conosco pelo WhatsApp. Responderemos o mais rápido possível.
-              </p>
-              <a
-                href="https://wa.me/5511999999999"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 px-6 py-3.5 text-white rounded-xl font-semibold text-sm transition-all hover:shadow-lg w-full"
-                style={{
-                  backgroundColor: "#25D366",
-                  fontFamily: "Montserrat, sans-serif",
-                }}
-              >
-                <MessageCircle size={18} />
-                Chamar no WhatsApp
-              </a>
-            </div>
-
-            <div
-              className="rounded-2xl p-6 border"
-              style={{
-                borderColor: "rgba(201,29,110,0.20)",
-                backgroundColor: "rgba(201,29,110,0.03)",
-              }}
-            >
-              <p
-                className="text-sm leading-relaxed"
-                style={{ color: "#5A5A5A", fontFamily: "Montserrat, sans-serif" }}
-              >
-                Atendimento <strong style={{ color: PRIMARY }}>humanizado e individualizado</strong>.
-                Cada avaliação é conduzida com atenção, respeito e sigilo.
-              </p>
-            </div>
-          </motion.div>
-
-          {/* Form */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="lg:col-span-3"
-          >
-            <div
-              className="bg-white rounded-2xl p-8 md:p-10 border"
-              style={{ borderColor: "rgba(28,28,28,0.08)", boxShadow: "0 4px 24px rgba(28,28,28,0.06)" }}
-            >
-              {status === "success" ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <CheckCircle2 className="w-14 h-14 mb-4" style={{ color: ACCENT }} />
-                  <h4
-                    className="text-xl font-bold mb-2"
-                    style={{ color: PRIMARY, fontFamily: "Lora, Georgia, serif" }}
-                  >
-                    Mensagem Enviada!
-                  </h4>
-                  <p
-                    className="mb-6 text-sm"
-                    style={{ color: "#5A5A5A", fontFamily: "Montserrat, sans-serif" }}
-                  >
-                    Entraremos em contato em breve para agendar sua avaliação.
-                  </p>
-                  <button
-                    onClick={() => setStatus("idle")}
-                    className="px-6 py-2.5 rounded-md border font-medium text-sm transition-colors cursor-pointer"
-                    style={{
-                      borderColor: "rgba(28,28,28,0.18)",
-                      color: PRIMARY,
-                      fontFamily: "Montserrat, sans-serif",
-                    }}
-                  >
-                    Enviar outra mensagem
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <label
-                        className="block text-xs font-semibold mb-1.5 uppercase tracking-wide"
-                        style={{ color: PRIMARY, fontFamily: "Montserrat, sans-serif" }}
-                      >
-                        Nome Completo *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        style={inputStyle}
-                        placeholder="Seu nome"
-                        onFocus={(e) => (e.target.style.borderColor = ACCENT)}
-                        onBlur={(e) => (e.target.style.borderColor = "rgba(28,28,28,0.12)")}
-                      />
-                    </div>
-                    <div>
-                      <label
-                        className="block text-xs font-semibold mb-1.5 uppercase tracking-wide"
-                        style={{ color: PRIMARY, fontFamily: "Montserrat, sans-serif" }}
-                      >
-                        Telefone *
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        style={inputStyle}
-                        placeholder="(XX) XXXXX-XXXX"
-                        onFocus={(e) => (e.target.style.borderColor = ACCENT)}
-                        onBlur={(e) => (e.target.style.borderColor = "rgba(28,28,28,0.12)")}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <label
-                        className="block text-xs font-semibold mb-1.5 uppercase tracking-wide"
-                        style={{ color: PRIMARY, fontFamily: "Montserrat, sans-serif" }}
-                      >
-                        WhatsApp
-                      </label>
-                      <input
-                        type="tel"
-                        value={formData.whatsapp}
-                        onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                        style={inputStyle}
-                        placeholder="(XX) XXXXX-XXXX"
-                        onFocus={(e) => (e.target.style.borderColor = ACCENT)}
-                        onBlur={(e) => (e.target.style.borderColor = "rgba(28,28,28,0.12)")}
-                      />
-                    </div>
-                    <div>
-                      <label
-                        className="block text-xs font-semibold mb-1.5 uppercase tracking-wide"
-                        style={{ color: PRIMARY, fontFamily: "Montserrat, sans-serif" }}
-                      >
-                        E-mail *
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        style={inputStyle}
-                        placeholder="seu@email.com"
-                        onFocus={(e) => (e.target.style.borderColor = ACCENT)}
-                        onBlur={(e) => (e.target.style.borderColor = "rgba(28,28,28,0.12)")}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label
-                      className="block text-xs font-semibold mb-1.5 uppercase tracking-wide"
-                      style={{ color: PRIMARY, fontFamily: "Montserrat, sans-serif" }}
-                    >
-                      Mensagem *
-                    </label>
-                    <textarea
-                      required
-                      rows={4}
-                      value={formData.message}
-                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      style={{ ...inputStyle, resize: "none" }}
-                      placeholder="Como podemos ajudá-la?"
-                      onFocus={(e) => (e.target.style.borderColor = ACCENT)}
-                      onBlur={(e) => (e.target.style.borderColor = "rgba(28,28,28,0.12)")}
-                    />
-                  </div>
-
-                  {status === "error" && (
-                    <p
-                      className="text-sm"
-                      style={{ color: "#dc2626", fontFamily: "Montserrat, sans-serif" }}
-                    >
-                      Ocorreu um erro ao enviar. Tente novamente.
-                    </p>
-                  )}
-
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="submit"
-                    disabled={status === "loading"}
-                    className="w-full px-8 py-3.5 text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-md transition-all cursor-pointer disabled:opacity-70 text-sm"
-                    style={{ backgroundColor: ACCENT, fontFamily: "Montserrat, sans-serif" }}
-                  >
-                    {status === "loading" ? (
-                      <><Loader2 className="w-4 h-4 animate-spin" /> Enviando...</>
-                    ) : (
-                      <>Enviar Mensagem <Send size={15} /></>
-                    )}
-                  </motion.button>
-                </form>
-              )}
-            </div>
-          </motion.div>
-        </div>
+        </motion.form>
       </div>
     </section>
   );
