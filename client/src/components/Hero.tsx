@@ -47,8 +47,8 @@ export default function Hero({ scrollToSection }: HeroProps) {
               className="text-balance"
               style={{ fontSize: "clamp(2.2rem, 4.6vw, 3.9rem)", fontWeight: 700, color: PRIMARY, lineHeight: 1.12 }}
             >
-              Seu corpo íntimo merece o mesmo cuidado que{" "}
-              <em style={{ color: ACCENT, fontStyle: "italic" }}>o resto da sua vida.</em>
+              Sua saúde íntima também merece{" "}
+              <em style={{ color: ACCENT, fontStyle: "italic" }}>cuidado e atenção.</em>
             </h1>
 
             <p className="mt-6 text-base md:text-lg max-w-2xl" style={{ color: "#4A4A4A" }}>

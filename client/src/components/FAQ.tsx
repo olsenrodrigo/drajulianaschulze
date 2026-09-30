@@ -4,8 +4,10 @@ import SectionHeader from "./SectionHeader";
 import { PRIMARY } from "@/lib/site";
 
 export const faqs = [
-  { q: "Quanto custa a avaliação inicial?", a: "R$ 450, com duração de 1h30." },
-  { q: "Quanto custa cada sessão?", a: "R$ 300 por sessão de 1 hora." },
+  {
+    q: "Quais são os valores da avaliação e das sessões?",
+    a: "Os valores são informados no contato. Fale com a gente pelo WhatsApp ou pelo formulário de agendamento para tirar suas dúvidas e marcar sua avaliação inicial, que tem duração de 1h30.",
+  },
   {
     q: "Quantas sessões eu vou precisar?",
     a: "Varia de pessoa para pessoa. A previsão de alta é definida já na avaliação inicial.",
