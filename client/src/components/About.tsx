@@ -70,11 +70,12 @@ export default function About() {
             <div className="space-y-5 text-[0.95rem] md:text-base" style={{ lineHeight: 1.8 }}>
               <p style={{ color: "#4A4A4A" }}>
                 Sou graduada em <strong style={{ color: PRIMARY }}>Fisioterapia pela USP</strong> e em Educação Física pelas
-                Faculdades Metropolitanas Unidas, com especialização em Fisiologia do Exercício pela Unifesp. Fiz{" "}
+                Faculdades Metropolitanas Unidas. Fiz{" "}
                 <strong style={{ color: PRIMARY }}>mestrado em Ciências da Saúde</strong> pelo Departamento de Disfunções
                 Miccionais Femininas (Urologia) da Unifesp, e <strong style={{ color: PRIMARY }}>doutorado em Psicologia Social
                 pela PUC-SP</strong>. Sou professora do curso de Fisioterapia da PUC-SP e já formei fisioterapeutas no Brasil e
-                no Canadá.
+                no Canadá. Tenho também <strong style={{ color: PRIMARY }}>pós-graduação em Fisiologia do Exercício pela
+                Unifesp</strong>.
               </p>
               <p style={{ color: "#4A4A4A" }}>
                 Sou autora de dois livros, e apresentei o <strong style={{ color: PRIMARY }}>Fisiochat</strong>, na TV PUC, o
